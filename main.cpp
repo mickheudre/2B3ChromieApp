@@ -1,7 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
-
+#include "colorspacegenerator.h"
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -13,5 +12,7 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.load(url);
 
+
+    ColorSpaceGenerator gg;
     return app.exec();
 }
