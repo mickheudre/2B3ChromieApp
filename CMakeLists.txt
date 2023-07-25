@@ -14,10 +14,12 @@ add_subdirectory(2B3Chromie/lib2B3Chromie)
 set(SRCS
     main.cpp
     colorspacegenerator.cpp
+    imageprovider.cpp
 )
 
 set(HEADERS
     colorspacegenerator.h
+    imageprovider.h
 )
 
 
@@ -31,11 +33,18 @@ qt_add_resources(app2B3ChromieApp "images"
         images/test.jpg
 )
 
+set_source_files_properties(RisoColors.qml PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
 qt_add_qml_module(app2B3ChromieApp
     URI 2B3ChromieApp
     VERSION 1.0
-    QML_FILES Main.qml
+    QML_FILES
+        Main.qml
+        RisoColors.qml
 )
+
 
 set_target_properties(app2B3ChromieApp PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -49,6 +58,8 @@ target_link_libraries(app2B3ChromieApp
     PRIVATE Qt6::Quick Qt6::Gui
     2B3ChromieCore
 )
+
+
 
 install(TARGETS app2B3ChromieApp
     BUNDLE DESTINATION .

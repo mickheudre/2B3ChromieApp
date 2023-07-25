@@ -9,12 +9,19 @@ extern "C" {
 #include <QDebug>
 #include <QColor>
 #include <QImage>
+#include <QUrl>
 
 ColorSpaceGenerator::ColorSpaceGenerator()
 {
 
-    QImage *image = new QImage(":/images/test.jpg");
-    QImage output(QSize(image->width(), image->height()), QImage::Format_RGB32);
+
+}
+
+void ColorSpaceGenerator::run(QColor paperColor, QColor inkColor, const QUrl &imagePath)
+{
+    QImage *image = new QImage(imagePath.toLocalFile());
+
+    QImage outputImage(QSize(image->width(), image->height()), QImage::Format_RGB32);
     QVector<ElementBibliotheque1D> bibliotheque1D(256*256*256);
     QVector<ComposantesNuance1D> profil1D(16*16*16);
     EnteteFichierProfil entete;
@@ -22,20 +29,20 @@ ColorSpaceGenerator::ColorSpaceGenerator()
     int taux_encre = 1000;
 
     CouleurDImpression couleur, couleurPapier;
-    couleur.couleur.r = 100;
-    couleur.couleur.g = 255;
-    couleur.couleur.b = 100;
+    couleur.couleur.r = inkColor.red();
+    couleur.couleur.g = inkColor.green();
+    couleur.couleur.b = inkColor.blue();
 
-    couleurPapier.couleur.r = 255;
-    couleurPapier.couleur.g = 255;
-    couleurPapier.couleur.b = 255;
+    couleurPapier.couleur.r = paperColor.red();
+    couleurPapier.couleur.g = paperColor.green();
+    couleurPapier.couleur.b = paperColor.blue();
 
     QVector<RgbColor> nuancier(256);
     QVector<uchar> imageConv(image->width()*image->height()*3);
     QVector<uchar> composante1(image->width()*image->height());
     QVector<RgbColor> imageSimulee(image->width()*image->height());
 
-    QImage profileImage(16*16, 16, QImage::Format_ARGB32);
+    QImage profileImage(16*16, 16*16, QImage::Format_ARGB32);
 
     for(int i = 0; i < image->width(); i ++) {
         for (int j = 0; j < image->height(); j++) {
@@ -67,7 +74,7 @@ ColorSpaceGenerator::ColorSpaceGenerator()
     for(int i=0;i<image->width();i++)
     {
         for (int j = 0; j < image->height(); j++) {
-            output.setPixelColor(i,j, QColor(composante1[i + j*image->width()], composante1[i + j*image->width()], composante1[i + j*image->width()]));
+            outputImage.setPixelColor(i,j, QColor(composante1[i + j*image->width()], composante1[i + j*image->width()], composante1[i + j*image->width()]));
             imageRendue.setPixelColor(i,j, QColor(imageSimuleeData[i + j*image->width()].r, imageSimuleeData[i + j*image->width()].g, imageSimuleeData[i + j*image->width()].b));
 
         }
@@ -84,9 +91,17 @@ ColorSpaceGenerator::ColorSpaceGenerator()
     }
 
 
+    m_outputImagePath = QUrl::fromLocalFile("/Users/mick/outputB4.jpg");
+    m_outputImage = imageRendue;
+    emit outputImageChanged();
+}
 
-    output.save("/Users/mick/outputB3.jpg");
-    imageRendue.save("/Users/mick/outputB4.jpg");
-    profileImage.save("/Users/mick/comp.png");
-    qDebug() << "done";
+QUrl ColorSpaceGenerator::outputImagePath() const
+{
+    return m_outputImagePath;
+}
+
+const QImage ColorSpaceGenerator::outputImage() const
+{
+    return m_outputImage;
 }
